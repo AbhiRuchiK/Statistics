@@ -1,0 +1,57 @@
+import pandas as pd   #for reading csv files
+import numpy as np  
+import math as math
+import scipy as scifi
+from scipy.stats import itemfreq
+import csv
+import collections
+from matplotlib import pyplot as plt
+from statistics import mode
+ 
+import pandas as pd
+import requests
+import io
+
+url='https://raw.githubusercontent.com/kartikpaliwal/bays-classifer/master/ignew.csv'
+s=requests.get(url).content
+
+dataAddress=pd.read_csv(io.StringIO(s.decode('utf-8')))
+
+
+
+ 
+TrainingData = dataAddress[0:int(0.75*len(s))]
+TestingData = dataAddress[(int(0.75*len(s))):]
+print(dataAddress) 
+score = TrainingData.score #importing rating of games i.e. a column of that csv file
+editorchoice = TrainingData.editors_choice #importing 0 or 1 list i.e. result one , column of csv file
+ 
+modeofscore = mode(score)  #taking mode of rating of games as i ploted the data and it seems rayligh
+
+GameScore = float(input("type anything: "))
+GameScoreProb=0
+def PofGScore (GameScoreUser):
+    countScore=0
+    for i in range(len(score)):
+        if GameScoreUser == score[i]:
+            countScore=countScore+1
+    return(countScore/len(score))
+ 
+def PdfOfRayligh(x):  #It will give a probability for x
+    return((x/(modeofscore**2))*(math.e)*(-(x**2)/(2*modeofscore*2)))
+ 
+def PofEConOtherScore(GameScoree):
+    return(1 -  PdfOfRayligh(GameScoree))
+ 
+a = (PdfOfRayligh(GameScore)*PofGScore(GameScore))
+b = a + (PofEConOtherScore(GameScore))*(1-PofGScore(GameScore))
+print(a,"a")
+print(b,"b")
+0#probability of score at a given probability of Editor choice
+PScoreGPEC  = a/b
+ 
+print(PScoreGPEC)    
+if PScoreGPEC >=50:
+    editorchoice = 1
+else:
+    editorchoice = 0
