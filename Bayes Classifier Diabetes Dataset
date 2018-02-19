@@ -4,35 +4,49 @@ import numpy as np
 from matplotlib import pyplot as plt
 import collections
 from statistics import mode
+import requests
+import io
 
 url="https://raw.githubusercontent.com/AbhiRuchiK/Statistics/master/diabetic_data.csv"
 s=requests.get(url).content
 AllData=pd.read_csv(io.StringIO(s.decode('utf-8')))
 
 TrainingData = AllData[0:int(0.75*len(AllData))]
-TestingData = AllData[(int(0.75*len(AllData))):]
-Age = list(TrainingData.AgeMean)
+TestingData = AllData[(int(0.75*len(AllData))):] 
 
-AgeMode = mode(Age) #natural parameter
+Age = list(TrainingData.AgeMean)
+diabetesMed = list(TrainingData.diabetesMed)
+
+DataDivideScoreOne = []
+DataDivideEditorOne = []
+DataDivideScoreZero = []
+DataDivideEditorZero = []
+def EditorScore():
+    for i in range(len(diabetesMed)):
+        if diabetesMed[i] == 1:
+            DataDivideScoreOne.append(Age[i])
+            DataDivideEditorOne.append(diabetesMed[i])
+        else:
+            DataDivideScoreZero.append(Age[i])
+            DataDivideEditorZero.append(diabetesMed[i])
+EditorScore()
+
+modeofscoreone = mode(DataDivideScoreOne)   #taking mode of rating of games as i ploted the data and it seems rayligh
+modeofscorezero = mode(DataDivideScoreZero)
+probofeditorchoice = len(DataDivideEditorOne)/len(Age)
+print(probofeditorchoice,"prob")
+probofeditorchoicezero = 1-probofeditorchoice
 
 def PdfRayleigh(x):
-    return ((x/(AgeMode**2))*math.e**(-(x**2)/(2*(AgeMode**2))))
+    return ((x/(modeofscoreone**2))*math.e**(-(x**2)/(2*(modeofscoreone**2))))
 
-def PdfNon_Rayleigh(UserAge):
-    return (1-PdfRayleigh(UserAge))
+def PdfOfRaylighZero(x):
+    return((x/(modeofscorezero**2))*(math.e)**(-(x**2)/(2*modeofscorezero**2)))
 
 UserAge = int(input("Enter your age: "))
 
-#Bayes Classifier
-diabetesMed = list(TrainingData.diabetesMed)
-diabetesMedProb = ((diabetesMed.count(1))/len(diabetesMed))
-non_diabetesMedProb = (1-diabetesMedProb)
-
-a = PdfRayleigh(UserAge)*diabetesMedProb
-b = a + PdfNon_Rayleigh(UserAge)*non_diabetesMedProb
+a = PdfRayleigh(UserAge)*probofeditorchoice
+b = a + PdfOfRaylighZero(UserAge)*probofeditorchoicezero
 BayesClassifier = a/b
 
 print(BayesClassifier,"BAyes")
-AgeProb=0
-AgeProb = ((Age.count(UserAge))/len(Age))
-print(AgeProb)
