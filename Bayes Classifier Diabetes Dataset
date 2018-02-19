@@ -1,9 +1,7 @@
 import pandas as pd
-import math
 import numpy as np
 from matplotlib import pyplot as plt
 import collections
-from statistics import mode
 import requests
 import io
 
@@ -17,36 +15,32 @@ TestingData = AllData[(int(0.75*len(AllData))):]
 Age = list(TrainingData.AgeMean)
 diabetesMed = list(TrainingData.diabetesMed)
 
-DataDivideScoreOne = []
-DataDivideEditorOne = []
-DataDivideScoreZero = []
-DataDivideEditorZero = []
+DataDivideAgeOne = []
+DataDivideAgeZero = []
 def EditorScore():
     for i in range(len(diabetesMed)):
         if diabetesMed[i] == 1:
-            DataDivideScoreOne.append(Age[i])
-            DataDivideEditorOne.append(diabetesMed[i])
+            DataDivideAgeOne.append(Age[i])
         else:
-            DataDivideScoreZero.append(Age[i])
-            DataDivideEditorZero.append(diabetesMed[i])
+            DataDivideAgeZero.append(Age[i])
 EditorScore()
 
-modeofscoreone = mode(DataDivideScoreOne)   #taking mode of rating of games as i ploted the data and it seems rayligh
-modeofscorezero = mode(DataDivideScoreZero)
-probofeditorchoice = len(DataDivideEditorOne)/len(Age)
-print(probofeditorchoice,"prob")
-probofeditorchoicezero = 1-probofeditorchoice
+modeofAgeOne = np.var(DataDivideAgeOne)   #taking mode of rating of games as i ploted the data and it seems rayligh
+modeofAgeZero = np.var(DataDivideAgeZero)
+
+probofdiabetesMed = (diabetesMed.count(1))/len(diabetesMed)
+probofdiabetesZero = 1-probofdiabetesMed
 
 def PdfRayleigh(x):
-    return ((x/(modeofscoreone**2))*math.e**(-(x**2)/(2*(modeofscoreone**2))))
+    return ((x/(modeofAgeOne))*((np.e)**(-(x**2)/(2*(modeofAgeOne)))))
 
 def PdfOfRaylighZero(x):
-    return((x/(modeofscorezero**2))*(math.e)**(-(x**2)/(2*modeofscorezero**2)))
+    return((x/(modeofAgeZero))*((np.e)**(-(x**2)/(2*(modeofAgeZero)))))
 
-UserAge = int(input("Enter your age: "))
-
-a = PdfRayleigh(UserAge)*probofeditorchoice
-b = a + PdfOfRaylighZero(UserAge)*probofeditorchoicezero
-BayesClassifier = a/b
-
-print(BayesClassifier,"BAyes")
+for i in range(0,4):
+    UserAge = int(input("Enter your age: "))
+    a = PdfRayleigh(UserAge)*probofdiabetesMed
+    b = a + PdfOfRaylighZero(UserAge)#*probofdiabetesZero
+    print(a,b)
+    BayesClassifier = a/b
+    print(BayesClassifier,"BAyes")
