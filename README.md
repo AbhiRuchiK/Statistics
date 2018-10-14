@@ -1,2 +1,2 @@
 # Statistics
-Machine Learning Math for begineers
+Machine Learning Math
