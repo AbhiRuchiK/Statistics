@@ -1,2 +1,3 @@
 # Statistics
-Machine Learning Math for begineers
+It contains some code for understanding the bayesian statsitics.
+
